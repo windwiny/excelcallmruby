@@ -3,7 +3,7 @@
 ## Can used global variables:     $log   $excel  $wb   $ws
 
 
-Dir.chdir File.dirname(__FILE__)
+Dir.chdir File.dirname(__FILE__) rescue nil
 
 
 if RUBY_ENGINE=='mruby'
@@ -50,7 +50,9 @@ $log.info "--> PATH: #{Dir.pwd},  ENV wbn/wsn: #{$active_wbn}\##{$active_wsn},  
 
 def main
   while x = ARGV.shift
-    fn = [x, x+'.mrb', x+'.rb'].find { |x| File.file? x }
+    fns = [x, x+'.mrb', x+'.rb']
+    fns.delete(x+'.mrb') unless RUBY_ENGINE=='mruby'
+    fn = fns.find { |i| File.file? i }
     if File.file? fn
       $log.info "running file: #{fn}"
 
@@ -79,6 +81,7 @@ def main
         load fn
       rescue => e
         $log.error e
+        $log.error e.backtrace.join("\n")
       end
     end
   end
